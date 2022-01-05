@@ -59,7 +59,7 @@ module ExportArchivesspaceXml
     def upload_file(body, key)
       aws_client.put_object({
         body: body,
-        bucket: "science-history-institute-archives-ead",
+        bucket: ENV["AWS_BUCKET"],
         key: key,
         server_side_encryption: "AES256",
         storage_class: "STANDARD_IA",
