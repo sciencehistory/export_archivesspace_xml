@@ -23,13 +23,13 @@ module ExportArchivesspaceXml
     end
 
     def get_ead(id)
-      opts = { include_unpublished: false, include_daos: true}
+      opts = { include_unpublished: false, include_daos: true }
       archivesspace_client.get("resource_descriptions/#{id}.xml", opts).body
     end
 
     def resources
       # TODO -- consider a `modified_since: '1612166400' ` date.
-      archivesspace_client.resources(query: {'all_ids': 'true'})       
+      archivesspace_client.resources(query: {include_unpublished: false, 'all_ids': true })
     end
 
     def archivesspace_client
