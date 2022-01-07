@@ -20,11 +20,11 @@ These are needed so the code knows where to put the files.
  - `AWS_REGION`
  - `AWS_ACCESS_KEY_ID`
  - `AWS_SECRET_ACCESS_KEY`
+Note: The IAM permissions associated with this key pair in S3 are minimal: the code can only write files to the ead bucket.
 ### Others
 - `PROXIMO_URL`
 - `PAPERTRAIL_API_TOKEN`
 - `LANG`
-The IAM permissions associated with this key pair in S3 are minimal: the code can only write files to the ead bucket.
 ## Scheduler add-on
 The project does *not* include a web dyno, and relies on the Heroku Scheduler to spin up a nightly process, as follows:
     `$ if [ "$(date +%u)" = 3 ]; then bin/proximo ruby run.rb; fi`
