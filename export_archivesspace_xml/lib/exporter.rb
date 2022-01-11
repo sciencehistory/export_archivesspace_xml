@@ -1,9 +1,9 @@
 module ExportArchivesspaceXml
-    ##  http://science-history-institute-archives-ead.s3-website-us-east-1.amazonaws.com/
+  ##  http://science-history-institute-archives-ead.s3-website-us-east-1.amazonaws.com/
   class Exporter
     def export()
       collection_ids = []
-      resources(recent: ENV['EXPORT_ONLY_RECENT_EADS']).each do |resource|
+      resources(recent: CONFIG[:export_only_recent_eads]).each do |resource|
         id   = resource['uri'].split('/')[-1]
         puts "Starting collection #{id}."
         collection_ids << id
@@ -43,24 +43,24 @@ module ExportArchivesspaceXml
     end
 
     def archivesspace_client
-      if ExportArchivesspaceXml::CONFIG.username.empty? || ExportArchivesspaceXml::CONFIG.password.empty?
+      if API_CONFIG.username.empty? || API_CONFIG.password.empty?
         raise "Could not find a username or a password for the ArchivesSpace API."
       end
-      if ExportArchivesspaceXml::CONFIG.base_uri.empty?
+      if API_CONFIG.base_uri.empty?
         raise "Could not find a URL for the ArchivesSpace API."
       end
-      @archivesspace_client = ArchivesSpace::Client.new(ExportArchivesspaceXml::CONFIG).login
+      @archivesspace_client = ArchivesSpace::Client.new(ExportArchivesspaceXml::API_CONFIG).login
     end
 
     def aws_client
       @aws_client ||= begin
-        if ENV['AWS_ACCESS_KEY_ID'].nil? ||  ENV['AWS_SECRET_ACCESS_KEY'].nil? ||  ENV['AWS_REGION'].nil?
+        if CONFIG[:aws_access_key_id].nil? ||  CONFIG[:aws_secret_access_key].nil? ||  CONFIG[:aws_region].nil?
           raise "Could not find AWS credentials."
         end
         Aws::S3::Client.new(
-          access_key_id:     ENV["AWS_ACCESS_KEY_ID"],
-          secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"],
-          region:            ENV["AWS_REGION"]
+          access_key_id:     CONFIG[:aws_access_key_id],
+          secret_access_key: CONFIG[:aws_secret_access_key],
+          region:            CONFIG[:aws_region]
         )
       end
     end
@@ -69,7 +69,7 @@ module ExportArchivesspaceXml
     def upload_file(body, key)
       aws_client.put_object({
         body: body,
-        bucket: ENV["AWS_BUCKET"],
+        bucket: CONFIG[:aws_bucket],
         key: key,
         server_side_encryption: "AES256",
         storage_class: "STANDARD_IA",
