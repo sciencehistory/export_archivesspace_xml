@@ -3,9 +3,9 @@ module ExportArchivesspaceXml
   class Exporter
     def export()
       collection_ids = []
-      resources.each do |resource|
+      resources(recent: ENV['EXPORT_ONLY_RECENT_EADS']).each do |resource|
         id   = resource['uri'].split('/')[-1]
-        puts "Starting #{id}."
+        puts "Starting collection #{id}."
         collection_ids << id
         new_filename ="#{id}.ead.xml"
         file = Tempfile.new(new_filename)
@@ -19,7 +19,10 @@ module ExportArchivesspaceXml
            file.unlink
         end
       end
-      upload_file(index_page_html(collection_ids), 'index.html')
+      puts "Uploading index page"
+      all_resources = resources(recent: nil)
+      all_collection_ids = all_resources.map { |r| r['uri'].split('/')[-1]}.to_a
+      upload_file(index_page_html(all_collection_ids), 'index.html')
     end
 
     def get_ead(id)
@@ -27,9 +30,16 @@ module ExportArchivesspaceXml
       archivesspace_client.get("resource_descriptions/#{id}.xml", opts).body
     end
 
-    def resources
-      # TODO -- consider a `modified_since: '1612166400' ` date.
-      archivesspace_client.resources(query: {include_unpublished: false, 'all_ids': true })
+    # A list of resource ids in the repository.
+    # If an integer `recent` is specisfied, then
+    # only export items modified in the past `recent` days.
+    def resources(recent: nil)
+      options = {include_unpublished: false, all_ids: true }
+      unless recent.nil?
+        unix_date = Time.now.to_i - recent.to_i * 24 * 60 * 60
+        options.merge!({ modified_since: unix_date })
+      end
+      archivesspace_client.resources(query: options)
     end
 
     def archivesspace_client
