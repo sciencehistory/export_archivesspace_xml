@@ -1,12 +1,6 @@
 # configure our terraform backend to use shared state on S3, as
 # configured in shared_state_s3.tf
 
-# terraform {
-#  backend "local" {
-#    path = "terraform.tfstate"
-#  }
-# }
-
 terraform {
   backend "s3" {
     profile = "admin"
