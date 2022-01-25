@@ -1,6 +1,10 @@
-require 'bundler/setup'
-require 'rubygems'
-load 'config/config.rb'
-
-load 'export_archivesspace_xml/export_archivesspace_xml.rb'
-ExportArchivesspaceXml::Exporter.new.export
+module ExportArchivesspaceXml
+  require 'rubygems'
+  require 'byebug'
+  require 'json'
+  require 'aws-sdk'
+  require_relative 'config/config'
+  require_relative 'export_archivesspace_xml/lib/exporter'
+  require_relative 'export_archivesspace_xml/lib/index_page'
+  Exporter.new.export
+end

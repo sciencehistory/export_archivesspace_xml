@@ -22,7 +22,7 @@ module ExportArchivesspaceXml
       puts "Uploading index page"
       all_resources = resources(recent: nil)
       all_collection_ids = all_resources.map { |r| r['uri'].split('/')[-1]}.to_a
-      upload_file(index_page_html(all_collection_ids), 'index.html')
+      upload_file(IndexPage.new.html(all_collection_ids), 'index.html')
     end
 
     def get_ead(id)
@@ -64,7 +64,6 @@ module ExportArchivesspaceXml
         )
       end
     end
-
 
     def upload_file(body, key)
       aws_client.put_object({
