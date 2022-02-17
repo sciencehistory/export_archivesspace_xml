@@ -2,7 +2,7 @@ module ExportArchivesspaceXml
   class IndexPage
     def html(collection_ids)
       list = collection_ids.map do |id|
-        "<li><a href =\"http://#{ENV["AWS_BUCKET"]}/#{id}.ead.xml\" >#{id}</a></li>"
+        "<li><a href =\"https://#{ENV["AWS_BUCKET"]}/#{id}.ead.xml\" >#{id}</a></li>"
       end.join
 
       index = "<html xmlns=\"http://www.w3.org/1999/xhtml\" >
