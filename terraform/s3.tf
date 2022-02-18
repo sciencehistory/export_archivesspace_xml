@@ -58,13 +58,6 @@ resource "aws_iam_user" "export_archivesspace_xml_user" {
   }
 }
 
-#  arn:aws:iam::335460257737:policy/export_archivesspace_xml_policy 
-
-#  aws_iam_policy.export_archivesspace_xml_policy
-
-# terraform import aws_iam_policy.export_archivesspace_xml_policy arn:aws:iam::335460257737:policy/export_archivesspace_xml_policy 
-
-
 resource "aws_iam_policy" "export_archivesspace_xml_policy" {
   name        = "export_archivesspace_xml_policy"
   path        = "/"
@@ -105,7 +98,7 @@ resource "aws_iam_user_policy_attachment" "export-archivesspace-xml_user_policy_
 
 resource "aws_cloudfront_distribution" "distribution" {
   aliases = [
-    "ead.sciencehistory.org",
+    aws_s3_bucket.ead.bucket,
   ]
   comment             = "Serve our EADs over HTTPS"
   default_root_object = "index.html"
@@ -123,7 +116,7 @@ resource "aws_cloudfront_distribution" "distribution" {
       "GET",
       "HEAD",
     ]
-    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    cache_policy_id = aws_cloudfront_cache_policy.cache_policy.id
     cached_methods = [
       "GET",
       "HEAD",
@@ -133,7 +126,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     max_ttl                = 0
     min_ttl                = 0
     smooth_streaming       = false
-    target_origin_id       = "ead.sciencehistory.org"
+    target_origin_id       = aws_s3_bucket.ead.bucket
     trusted_key_groups     = []
     trusted_signers        = []
     viewer_protocol_policy = "redirect-to-https"
@@ -142,8 +135,8 @@ resource "aws_cloudfront_distribution" "distribution" {
   origin {
     connection_attempts = 3
     connection_timeout  = 10
-    domain_name         = "ead.sciencehistory.org.s3-website-us-east-1.amazonaws.com"
-    origin_id           = "ead.sciencehistory.org"
+    domain_name         = aws_s3_bucket.ead.website_endpoint
+    origin_id           = aws_s3_bucket.ead.bucket
 
     custom_origin_config {
       http_port                = 80
@@ -171,5 +164,24 @@ resource "aws_cloudfront_distribution" "distribution" {
     cloudfront_default_certificate = false
     minimum_protocol_version       = "TLSv1.2_2021"
     ssl_support_method             = "sni-only"
+  }
+}
+
+resource "aws_cloudfront_cache_policy" "cache_policy" {
+  min_ttl = 1
+  name    = "Managed-CachingOptimized"
+  comment = "Default policy when CF compression is enabled"
+  parameters_in_cache_key_and_forwarded_to_origin {
+    enable_accept_encoding_brotli = true
+    enable_accept_encoding_gzip   = true
+    cookies_config {
+      cookie_behavior = "none"
+    }
+    headers_config {
+      header_behavior = "none"
+    }
+    query_strings_config {
+      query_string_behavior = "none"
+    }
   }
 }
