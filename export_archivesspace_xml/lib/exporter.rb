@@ -4,6 +4,7 @@ module ExportArchivesspaceXml
     def export()
       collection_ids = []
       resources(recent: CONFIG[:export_only_recent_eads]).each do |resource|
+        next unless  resource['publish']
         id   = resource['uri'].split('/')[-1]
         puts "Starting collection #{id}."
         collection_ids << id
@@ -21,7 +22,7 @@ module ExportArchivesspaceXml
       end
       puts "Uploading index page"
       all_resources = resources(recent: nil)
-      all_collection_ids = all_resources.map { |r| r['uri'].split('/')[-1]}.to_a
+      all_collection_ids = all_resources.select {|r| r['publish'] }.map { |r| r['uri'].split('/')[-1]}.to_a
       upload_file(IndexPage.new.html(all_collection_ids), 'index.html')
     end
 
@@ -31,7 +32,7 @@ module ExportArchivesspaceXml
     end
 
     # A list of resource ids in the repository.
-    # If an integer `recent` is specisfied, then
+    # If an integer `recent` is specified, then
     # only export items modified in the past `recent` days.
     def resources(recent: nil)
       options = {include_unpublished: false, all_ids: true }
