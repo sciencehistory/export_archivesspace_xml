@@ -8,6 +8,7 @@ module ExportArchivesspaceXml
     debug: false,
     page_size: 50,
     throttle: 0.5,
+    timeout: ENV['TIMEOUT'],
     verify_ssl: false
   })
   CONFIG = {
