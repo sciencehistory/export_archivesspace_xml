@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
-gem 'archivesspace-client'
+#gem 'archivesspace-client'
+gem 'archivesspace-client', git: 'https://github.com/eddierubeiz/archivesspace-client.git', branch: 'allow_timeout_setting'
 gem 'aws-sdk'
 gem 'byebug'
