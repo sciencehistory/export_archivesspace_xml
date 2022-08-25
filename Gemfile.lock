@@ -1,17 +1,11 @@
-GIT
-  remote: https://github.com/eddierubeiz/archivesspace-client.git
-  revision: f1bf38743e51b63909a49324f528ce6b0dcdd4a1
-  branch: allow_timeout_setting
+GEM
+  remote: https://rubygems.org/
   specs:
     archivesspace-client (0.1.12)
       dry-cli (~> 0.7)
       httparty (~> 0.14)
       json (~> 2.0)
       nokogiri (~> 1.10)
-
-GEM
-  remote: https://rubygems.org/
-  specs:
     aws-eventstream (1.2.0)
     aws-partitions (1.541.0)
     aws-sdk (3.1.0)
@@ -1243,7 +1237,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  archivesspace-client!
+  archivesspace-client
   aws-sdk
   byebug
 
