@@ -3,9 +3,19 @@ module ExportArchivesspaceXml
   class Exporter
     def export()
       collection_ids = []
+
+      list_of_eads_to_export = CONFIG[:export_only].nil? ? nil : CONFIG[:export_only].split(',')
+
       resources(recent: CONFIG[:export_only_recent_eads]).each do |resource|
         next unless  resource['publish']
+
         id   = resource['uri'].split('/')[-1]
+
+        unless list_of_eads_to_export.nil?
+          next unless list_of_eads_to_export.include? id
+        end
+
+
         puts "Starting collection #{id}."
         collection_ids << id
         new_filename ="#{id}.ead.xml"
@@ -14,16 +24,19 @@ module ExportArchivesspaceXml
           file << get_ead(id)
           file.rewind
           file.flush
-          upload_file(file, new_filename)
+          save_file(file, new_filename)
         ensure
-           file.close
-           file.unlink
+          file.close
+          file.unlink
         end
       end
-      puts "Uploading index page"
-      all_resources = resources(recent: nil)
-      all_collection_ids = all_resources.select {|r| r['publish'] }.map { |r| r['uri'].split('/')[-1]}.to_a
-      upload_file(IndexPage.new.html(all_collection_ids), 'index.html')
+
+      unless CONFIG[:skip_index] == 'true'
+        puts "Uploading index page"
+        all_resources = resources(recent: nil)
+        all_collection_ids = all_resources.select {|r| r['publish'] }.map { |r| r['uri'].split('/')[-1]}.to_a
+        save_file(IndexPage.new.html(all_collection_ids), 'index.html')
+      end
     end
 
     def get_ead(id)
@@ -44,13 +57,20 @@ module ExportArchivesspaceXml
     end
 
     def archivesspace_client
-      if API_CONFIG.username.empty? || API_CONFIG.password.empty?
-        raise "Could not find a username or a password for the ArchivesSpace API."
+      @archivesspace_client ||= begin
+        puts "Connecting to ArchivesSpace."
+        if API_CONFIG.username.empty? || API_CONFIG.password.empty?
+          raise "Could not find a username or a password for the ArchivesSpace API."
+        end
+        if API_CONFIG.base_uri.empty?
+          raise "Could not find a URL for the ArchivesSpace API."
+        end
+        cli = ArchivesSpace::Client.new(ExportArchivesspaceXml::API_CONFIG).login
+        if cli.is_a? ArchivesSpace::Client
+          puts "Connected to ArchivesSpace."
+        end
+        cli
       end
-      if API_CONFIG.base_uri.empty?
-        raise "Could not find a URL for the ArchivesSpace API."
-      end
-      @archivesspace_client = ArchivesSpace::Client.new(ExportArchivesspaceXml::API_CONFIG).login
     end
 
     def aws_client
@@ -66,16 +86,22 @@ module ExportArchivesspaceXml
       end
     end
 
-    def upload_file(body, key)
-      aws_client.put_object({
-        body: body,
-        bucket: CONFIG[:aws_bucket],
-        key: key,
-        server_side_encryption: "AES256",
-        storage_class: "STANDARD_IA",
-        content_type: "text/html",
-        content_disposition: "inline"
-      })
+    def save_file(body, filename)
+      if CONFIG[:debug_export_path].nil?
+        # upload to S3
+        aws_client.put_object({
+          body: body,
+          bucket: CONFIG[:aws_bucket],
+          key: filename,
+          server_side_encryption: "AES256",
+          storage_class: "STANDARD_IA",
+          content_type: "text/html",
+          content_disposition: "inline"
+        })
+      else
+        # Save file locally.
+        File.open("#{CONFIG[:debug_export_path]}/#{filename}", "w") { |f| f.write body.read }
+      end
     end
   end
 end

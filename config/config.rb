@@ -12,10 +12,13 @@ module ExportArchivesspaceXml
     verify_ssl: false
   })
   CONFIG = {
-  	export_only_recent_eads: ENV['EXPORT_ONLY_RECENT_EADS'],
-  	aws_access_key_id:       ENV['AWS_ACCESS_KEY_ID'],
-  	aws_secret_access_key:   ENV['AWS_SECRET_ACCESS_KEY'],
-  	aws_region:              ENV['AWS_REGION'],
-  	aws_bucket:              ENV['AWS_BUCKET'],
+    debug_export_path:       ENV['DEBUG_EXPORT_PATH'],
+    export_only_recent_eads: ENV['EXPORT_ONLY_RECENT_EADS'],
+    aws_access_key_id:       ENV['AWS_ACCESS_KEY_ID'],
+    aws_secret_access_key:   ENV['AWS_SECRET_ACCESS_KEY'],
+    aws_region:              ENV['AWS_REGION'],
+    aws_bucket:              ENV['AWS_BUCKET'],
+    skip_index:              ENV['SKIP_INDEX'],
+    export_only:             ENV['EXPORT_ONLY'],
   }
 end
