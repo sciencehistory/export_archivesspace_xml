@@ -1,6 +1,10 @@
 require 'open-uri'
 require 'nokogiri'
 
+# Just download all the files, validate them against the EAD schema, and report any fatal errors.
+# Note there are *many* non-fatal errors in the EAD files. This is just intended as a basic "nothing is on fire" check.
+# bundle exec ruby run_check.rb | grep -q  'No fatal errors found' && curl https://api.honeybadger.io/v1/check_in/OaIlNl &> /dev/null
+
 module ExportArchivesspaceXml
   class CheckEadFilesForFatalErrors
     def check      
