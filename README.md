@@ -29,5 +29,6 @@ Note: The IAM permissions associated with this key pair in S3 are minimal: the c
 We don't manage these- they're set by Heroku for our add-ons.
 - `PAPERTRAIL_API_TOKEN`
 ## Scheduler add-on
-The project does *not* include a web dyno, and relies on the Heroku Scheduler to spin up a nightly process, as follows:
-    `$ bin/proximo bundle exec ruby run.rb`
+The project does *not* include a web dyno, and relies on the Heroku Scheduler to spin up a nightly process.
+## EAD validation
+bundle exec ruby run_check.rb will download each EAD file from the bucket, validate it against the EAD schema, and report any fatal errors.
